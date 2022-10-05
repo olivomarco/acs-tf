@@ -62,3 +62,41 @@ resource "azurerm_eventgrid_system_topic_event_subscription" "egs" {
     storage_blob_container_name = azurerm_storage_container.sc.name
   }
 }
+
+# diagnostic settings
+data "azurerm_monitor_diagnostic_categories" "eventgrid_categories" {
+  count       = var.enable_eventgrid_logs_to_loganalytics ? 1 : 0
+  resource_id = azurerm_eventgrid_system_topic.eg.id
+}
+
+resource "azurerm_monitor_diagnostic_setting" "eventgrid-log" {
+  count = var.enable_eventgrid_logs_to_loganalytics ? 1 : 0
+
+  name                       = "eventgrid-log"
+  target_resource_id         = azurerm_eventgrid_system_topic.eg.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics.id
+
+  dynamic log {
+    for_each = data.azurerm_monitor_diagnostic_categories.eventgrid_categories.0.log_category_types
+    content {
+      category = log.value
+      enabled  = true
+
+      retention_policy {
+        enabled = true
+        days    = var.loganalytics_retention_in_days
+      }
+    }
+  }
+
+  metric {
+    category = "AllMetrics"
+    enabled  = true
+
+    retention_policy {
+      enabled = true
+      days    = var.loganalytics_retention_in_days
+    }
+
+  }
+}

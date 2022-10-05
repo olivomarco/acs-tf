@@ -25,6 +25,15 @@ variable "location" {
 }
 
 #######################
+# keyvault conf
+#######################
+variable "enable_kv_logs_to_loganalytics" {
+  description = "Enable KeyVault logs to log analytics?"
+  default     = true
+}
+
+
+#######################
 # storage account conf
 #######################
 variable "sa_replication_type" {
@@ -37,6 +46,12 @@ variable "sa_tier" {
   default     = "Standard"
 }
 
+variable "enable_sa_logs_to_loganalytics" {
+  description = "Enable storage account logs to log analytics?"
+  default     = true
+}
+
+
 #######################
 # acs conf
 #######################
@@ -44,6 +59,12 @@ variable "data_location" {
   description = "The location of the data."
   default     = "Europe"
 }
+
+variable "enable_acs_logs_to_loganalytics" {
+  description = "Enable ACS logs to log analytics?"
+  default     = true
+}
+
 
 #######################
 # eventhub conf
@@ -54,8 +75,14 @@ variable "eventhubs" {
     name = string
   }))
   default = {
-    "interactions" = { name = "interactions" }
-    "recordings"   = { name = "recordings" }
+    "interactions" = {
+      name                                 = "interactions"
+      enable_eventhub_logs_to_loganalytics = true
+    }
+    "recordings" = {
+      name                                 = "recordings"
+      enable_eventhub_logs_to_loganalytics = true
+    }
   }
 }
 
@@ -81,5 +108,29 @@ variable "eventhub_partition_count" {
 
 variable "eventhub_message_retention" {
   description = "The message retention of the eventhub, in days."
+  default     = 30
+}
+
+variable "enable_eventhub_logs_to_loganalytics" {
+  description = "Enable eventhub logs to log analytics?"
+  default     = true
+}
+
+variable "enable_eventgrid_logs_to_loganalytics" {
+  description = "Enable eventgrid logs to log analytics?"
+  default     = true
+}
+
+
+#######################
+# loganalytics conf
+#######################
+variable "loganalytics_sku" {
+  description = "The sku of the loganalytics workspace."
+  default     = "PerGB2018"
+}
+
+variable "loganalytics_retention_in_days" {
+  description = "The retention in days of the loganalytics workspace."
   default     = 30
 }

@@ -37,3 +37,41 @@ resource "azurerm_role_assignment" "sa_role_assignment" {
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = azurerm_user_assigned_identity.mi.principal_id
 }
+
+# diagnostic settings
+data "azurerm_monitor_diagnostic_categories" "sa_categories" {
+  count       = var.enable_sa_logs_to_loganalytics ? 1 : 0
+  resource_id = azurerm_storage_account.sa.id
+}
+
+resource "azurerm_monitor_diagnostic_setting" "sa-log" {
+  count = var.enable_sa_logs_to_loganalytics ? 1 : 0
+
+  name                       = "sa-log"
+  target_resource_id         = azurerm_storage_account.sa.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics.id
+
+  dynamic log {
+    for_each = data.azurerm_monitor_diagnostic_categories.sa_categories.0.log_category_types
+    content {
+      category = log.value
+      enabled  = true
+
+      retention_policy {
+        enabled = true
+        days    = var.loganalytics_retention_in_days
+      }
+    }
+  }
+
+  metric {
+    category = "AllMetrics"
+    enabled  = true
+
+    retention_policy {
+      enabled = true
+      days    = var.loganalytics_retention_in_days
+    }
+
+  }
+}
