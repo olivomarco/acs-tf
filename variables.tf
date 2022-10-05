@@ -1,4 +1,6 @@
+#######################
 # resource group conf
+#######################
 variable "rg" {
   description = "The name of the resource group in which to create the communication service."
   default     = "rg-acs"
@@ -9,7 +11,9 @@ variable "create_rg" {
   default     = true
 }
 
+#######################
 # general conf
+#######################
 variable "tags" {
   description = "A mapping of tags to assign to the resource."
   default     = {}
@@ -20,13 +24,41 @@ variable "location" {
   default     = "West Europe"
 }
 
+#######################
+# storage account conf
+#######################
+variable "sa_replication_type" {
+  description = "The type of replication to use for this storage account. Valid options are LRS, GRS, RAGRS and ZRS."
+  default     = "GZRS"
+}
+
+variable "sa_tier" {
+  description = "The tier of this storage account. Valid options are Standard and Premium."
+  default     = "Standard"
+}
+
+#######################
 # acs conf
+#######################
 variable "data_location" {
   description = "The location of the data."
   default     = "Europe"
 }
 
+#######################
 # eventhub conf
+#######################
+variable "eventhubs" {
+  description = "Name of eventhubs to create"
+  type = map(object({
+    name = string
+  }))
+  default = {
+    "interactions" = { name = "interactions" }
+    "recordings"   = { name = "recordings" }
+  }
+}
+
 variable "eventhub_capacity" {
   description = "The capacity of the eventhub."
   default     = 1
@@ -48,6 +80,6 @@ variable "eventhub_partition_count" {
 }
 
 variable "eventhub_message_retention" {
-  description = "The message retention of the eventhub."
-  default     = 1
+  description = "The message retention of the eventhub, in days."
+  default     = 30
 }
