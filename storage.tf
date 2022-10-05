@@ -7,6 +7,7 @@ resource "azurerm_storage_account" "sa" {
   account_replication_type = var.sa_replication_type
   account_kind             = "StorageV2" # must be StorageV2 in order to configure BYOK
   access_tier              = "Hot"
+  min_tls_version          = "TLS1_2"
 
   shared_access_key_enabled = false
   enable_https_traffic_only = true
@@ -38,40 +39,11 @@ resource "azurerm_role_assignment" "sa_role_assignment" {
   principal_id         = azurerm_user_assigned_identity.mi.principal_id
 }
 
-# diagnostic settings
-data "azurerm_monitor_diagnostic_categories" "sa_categories" {
-  count       = var.enable_sa_logs_to_loganalytics ? 1 : 0
-  resource_id = azurerm_storage_account.sa.id
-}
+module "sa-diagnosticsettings" {
+  source = "./modules/diagnosticsettings"
 
-resource "azurerm_monitor_diagnostic_setting" "sa-log" {
-  count = var.enable_sa_logs_to_loganalytics ? 1 : 0
-
-  name                       = "sa-log"
-  target_resource_id         = azurerm_storage_account.sa.id
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics.id
-
-  dynamic log {
-    for_each = data.azurerm_monitor_diagnostic_categories.sa_categories.0.log_category_types
-    content {
-      category = log.value
-      enabled  = true
-
-      retention_policy {
-        enabled = true
-        days    = var.loganalytics_retention_in_days
-      }
-    }
-  }
-
-  metric {
-    category = "AllMetrics"
-    enabled  = true
-
-    retention_policy {
-      enabled = true
-      days    = var.loganalytics_retention_in_days
-    }
-
-  }
+  send_logs_to_loganalytics = var.enable_sa_logs_to_loganalytics
+  arm_resource_id           = azurerm_storage_account.sa.id
+  log_analytics_id          = azurerm_log_analytics_workspace.loganalytics.id
+  log_name                  = "sa-log"
 }

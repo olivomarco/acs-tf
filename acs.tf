@@ -7,40 +7,11 @@ resource "azurerm_communication_service" "acs" {
   tags = var.tags
 }
 
-# diagnostic settings
-data "azurerm_monitor_diagnostic_categories" "acs_categories" {
-  count       = var.enable_acs_logs_to_loganalytics ? 1 : 0
-  resource_id = azurerm_communication_service.acs.id
-}
+module "acs-diagnosticsettings" {
+  source = "./modules/diagnosticsettings"
 
-resource "azurerm_monitor_diagnostic_setting" "acs-log" {
-  count = var.enable_acs_logs_to_loganalytics ? 1 : 0
-
-  name                       = "acs-log"
-  target_resource_id         = azurerm_communication_service.acs.id
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics.id
-
-  dynamic "log" {
-    for_each = data.azurerm_monitor_diagnostic_categories.acs_categories.0.log_category_types
-    content {
-      category = log.value
-      enabled  = true
-
-      retention_policy {
-        enabled = true
-        days    = var.loganalytics_retention_in_days
-      }
-    }
-  }
-
-  metric {
-    category = "AllMetrics"
-    enabled  = true
-
-    retention_policy {
-      enabled = true
-      days    = var.loganalytics_retention_in_days
-    }
-
-  }
+  send_logs_to_loganalytics = var.enable_acs_logs_to_loganalytics
+  arm_resource_id           = azurerm_communication_service.acs.id
+  log_analytics_id          = azurerm_log_analytics_workspace.loganalytics.id
+  log_name                  = "acs-log"
 }
