@@ -1,8 +1,8 @@
 # create keyvault for BYOK, generate a key
 resource "azurerm_key_vault" "kv" {
   name                     = "kv-${random_string.random.result}"
-  location                 = azurerm_resource_group.rg[0].location
-  resource_group_name      = azurerm_resource_group.rg[0].name
+  location                 = var.location
+  resource_group_name      = var.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   tenant_id                = data.azurerm_client_config.current.tenant_id
   sku_name                 = "standard" # no need for anything else here
   purge_protection_enabled = true
@@ -25,6 +25,8 @@ resource "azurerm_key_vault" "kv" {
     secret_permissions = ["Backup", "Delete", "Get", "List", "Purge", "Recover", "Restore", "Set", ]
     key_permissions    = ["Backup", "Create", "Decrypt", "Delete", "Encrypt", "Get", "Import", "List", "Purge", "Recover", "Restore", "Sign", "UnwrapKey", "Update", "Verify", "WrapKey", ]
   }
+
+  tags = var.tags
 }
 
 resource "azurerm_key_vault_key" "generated" {

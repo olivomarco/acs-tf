@@ -1,7 +1,7 @@
 # create dead-letter storage account and storage container, for eventgrid subscription
 resource "azurerm_storage_account" "sa" {
   name                     = "deadletter${random_string.random.result}"
-  resource_group_name      = azurerm_resource_group.rg[0].name
+  resource_group_name      = var.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   location                 = var.location
   account_tier             = var.sa_tier
   account_replication_type = var.sa_replication_type

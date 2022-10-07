@@ -1,8 +1,8 @@
 # create an eventhub namespace and eventhub
 resource "azurerm_eventhub_namespace" "eh" {
-  name                = "acs-eventhub"
-  location            = azurerm_resource_group.rg[0].location
-  resource_group_name = azurerm_resource_group.rg[0].name
+  name                = "acs-eventhub-${random_string.random.result}"
+  location            = var.location
+  resource_group_name = var.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 
   sku            = var.eventhub_sku
   capacity       = var.eventhub_capacity
@@ -16,7 +16,7 @@ resource "azurerm_eventhub" "eventhub" {
 
   name                = each.value.name
   namespace_name      = azurerm_eventhub_namespace.eh.name
-  resource_group_name = azurerm_resource_group.rg[0].name
+  resource_group_name = var.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 
   partition_count   = var.eventhub_partition_count
   message_retention = var.eventhub_message_retention

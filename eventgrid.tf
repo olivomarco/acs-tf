@@ -1,7 +1,7 @@
 # create an eventgrid system topic
 resource "azurerm_eventgrid_system_topic" "eg" {
   name                   = "acs-eventgrid"
-  resource_group_name    = azurerm_resource_group.rg[0].name
+  resource_group_name    = var.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   location               = "Global"
   source_arm_resource_id = azurerm_communication_service.acs.id
   topic_type             = "Microsoft.Communication.CommunicationServices"
@@ -19,7 +19,7 @@ resource "azurerm_eventgrid_system_topic" "eg" {
 # link eventgrid subscription to eventhub for ACS events
 resource "azurerm_eventgrid_system_topic_event_subscription" "egs" {
   name                = "acs-interactions"
-  resource_group_name = azurerm_resource_group.rg[0].name
+  resource_group_name = var.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 
   included_event_types = [
     "Microsoft.Communication.ChatThreadCreated",
