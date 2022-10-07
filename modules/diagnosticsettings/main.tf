@@ -4,7 +4,7 @@ data "azurerm_monitor_diagnostic_categories" "categories" {
   resource_id = var.arm_resource_id
 }
 
-resource "azurerm_monitor_diagnostic_setting" "eventgrid-log" {
+resource "azurerm_monitor_diagnostic_setting" "log" {
   count = var.send_logs_to_loganalytics ? 1 : 0
 
   name                       = var.log_name
