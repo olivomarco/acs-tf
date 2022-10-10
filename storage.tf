@@ -1,6 +1,6 @@
 # create dead-letter storage account and storage container, for eventgrid subscription
 resource "azurerm_storage_account" "sa" {
-  name                     = "deadletter${random_string.random.result}"
+  name                     = var.sa_name
   resource_group_name      = var.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   location                 = var.location
   account_tier             = var.sa_tier
@@ -15,13 +15,13 @@ resource "azurerm_storage_account" "sa" {
   identity {
     type = "UserAssigned"
     identity_ids = [
-      azurerm_user_assigned_identity.mi.id,
+      var.create_mi ? azurerm_user_assigned_identity.mi[0].id : data.azurerm_user_assigned_identity.mi[0].id,
     ]
   }
 
   customer_managed_key {
-    key_vault_key_id          = azurerm_key_vault_key.generated.id
-    user_assigned_identity_id = azurerm_user_assigned_identity.mi.id
+    key_vault_key_id          = var.create_kv ? azurerm_key_vault_key.byok[0].id : data.azurerm_key_vault_key.byok[0].id
+    user_assigned_identity_id = var.create_mi ? azurerm_user_assigned_identity.mi[0].id : data.azurerm_user_assigned_identity.mi[0].id
   }
 
   tags = var.tags
@@ -36,7 +36,7 @@ resource "azurerm_storage_container" "sc" {
 resource "azurerm_role_assignment" "sa_role_assignment" {
   scope                = azurerm_storage_account.sa.id
   role_definition_name = "Storage Blob Data Contributor"
-  principal_id         = azurerm_user_assigned_identity.mi.principal_id
+  principal_id         = var.create_mi ? azurerm_user_assigned_identity.mi[0].principal_id : data.azurerm_user_assigned_identity.mi[0].principal_id
 }
 
 module "sa-diagnosticsettings" {

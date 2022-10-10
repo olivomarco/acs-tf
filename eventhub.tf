@@ -1,6 +1,6 @@
 # create an eventhub namespace and eventhub
 resource "azurerm_eventhub_namespace" "eh" {
-  name                = "acs-eventhub-${random_string.random.result}"
+  name                = var.eventhub_name
   location            = var.location
   resource_group_name = var.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
 

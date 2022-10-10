@@ -1,7 +1,7 @@
 #######################
 # resource group conf
 #######################
-variable "rg" {
+variable "rg_name" {
   description = "The name of the resource group in which to create the communication service."
   default     = "rg-acs"
 }
@@ -27,15 +27,57 @@ variable "location" {
 #######################
 # keyvault conf
 #######################
+variable "kv_name" {
+  description = "The name of the key vault in which to create the communication service."
+  default     = "kv-acs"
+}
+
+variable "kv_rg_name" {
+  description = "The name of the resource group in which to create (or find, if existing) the key vault."
+  default     = "rg-acs"
+}
+
+variable "create_kv" {
+  description = "Create a key vault?"
+  default     = true
+}
+
+variable "byok_name" {
+  description = "The name of the key for BYOK, stored inside KeyVault."
+  default     = "byok-acs"
+}
+
 variable "enable_kv_logs_to_loganalytics" {
   description = "Enable KeyVault logs to log analytics?"
   default     = true
 }
 
+#######################
+# managed identity conf
+#######################
+variable "mi_name" {
+  description = "The name of the managed identity to create."
+  default     = "mi-acs"
+}
+
+variable "mi_rg_name" {
+  description = "The name of the resource group in which to create (or find, if existing) the managed identity."
+  default     = "rg-acs"
+}
+
+variable "create_mi" {
+  description = "Create a managed identity?"
+  default     = true
+}
 
 #######################
 # storage account conf
 #######################
+variable "sa_name" {
+  description = "The name of the storage account in which to create dead letter."
+  default     = "sadeadletter"
+}
+
 variable "sa_replication_type" {
   description = "The type of replication to use for this storage account. Valid options are LRS, GRS, RAGRS and ZRS."
   default     = "GZRS"
@@ -51,10 +93,14 @@ variable "enable_sa_logs_to_loganalytics" {
   default     = true
 }
 
-
 #######################
 # acs conf
 #######################
+variable "acs_name" {
+  description = "The name of the communication service."
+  default     = "acs"
+}
+
 variable "data_location" {
   description = "The location of the data."
   default     = "Europe"
@@ -65,10 +111,14 @@ variable "enable_acs_logs_to_loganalytics" {
   default     = true
 }
 
-
 #######################
 # eventhub conf
 #######################
+variable "eventhub_name" {
+  description = "The name of the eventhub namespace."
+  default     = "eventhub"
+}
+
 variable "eventhubs" {
   description = "Name of eventhubs to create"
   type = map(object({
@@ -77,11 +127,9 @@ variable "eventhubs" {
   default = {
     "interactions" = {
       name                                 = "interactions"
-      enable_eventhub_logs_to_loganalytics = true
     }
     "recordings" = {
       name                                 = "recordings"
-      enable_eventhub_logs_to_loganalytics = true
     }
   }
 }
@@ -116,15 +164,26 @@ variable "enable_eventhub_logs_to_loganalytics" {
   default     = true
 }
 
+#######################
+# eventgrid conf
+#######################
+variable "eventgrid_name" {
+  description = "The name of the eventgrid."
+  default     = "acs-eventgrid"
+}
+
 variable "enable_eventgrid_logs_to_loganalytics" {
   description = "Enable eventgrid logs to log analytics?"
   default     = true
 }
 
-
 #######################
 # loganalytics conf
 #######################
+variable "loganalytics_name" {
+  description = "The name of the log analytics workspace."
+  default     = "acs-loganalytics"
+}
 variable "loganalytics_sku" {
   description = "The sku of the loganalytics workspace."
   default     = "PerGB2018"

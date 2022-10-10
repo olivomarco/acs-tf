@@ -1,6 +1,6 @@
 # create an eventgrid system topic
 resource "azurerm_eventgrid_system_topic" "eg" {
-  name                   = "acs-eventgrid"
+  name                   = var.eventgrid_name
   resource_group_name    = var.create_rg ? azurerm_resource_group.rg[0].name : data.azurerm_resource_group.rg[0].name
   location               = "Global"
   source_arm_resource_id = azurerm_communication_service.acs.id
@@ -9,7 +9,7 @@ resource "azurerm_eventgrid_system_topic" "eg" {
   identity {
     type = "UserAssigned"
     identity_ids = [
-      azurerm_user_assigned_identity.mi.id,
+      var.create_mi ? azurerm_user_assigned_identity.mi[0].id : data.azurerm_user_assigned_identity.mi[0].id,
     ]
   }
 
@@ -55,7 +55,7 @@ resource "azurerm_eventgrid_system_topic_event_subscription" "egs" {
   # dead letter
   dead_letter_identity {
     type                   = "UserAssigned"
-    user_assigned_identity = azurerm_user_assigned_identity.mi.id
+    user_assigned_identity = var.create_mi ? azurerm_user_assigned_identity.mi[0].id : data.azurerm_user_assigned_identity.mi[0].id
   }
   storage_blob_dead_letter_destination {
     storage_account_id          = azurerm_storage_account.sa.id

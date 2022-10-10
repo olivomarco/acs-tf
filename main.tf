@@ -5,6 +5,13 @@ terraform {
       version = "=3.25.0"
     }
   }
+  # uncomment and fill to use a remote backend for Terraform state
+  # backend "azurerm" {
+  #   resource_group_name  = "tfstate"
+  #   storage_account_name = "<storage_account_name>"
+  #   container_name       = "tfstate"
+  #   key                  = "terraform.tfstate"
+  # }
 }
 
 provider "azurerm" {
@@ -13,12 +20,6 @@ provider "azurerm" {
 }
 
 data "azurerm_client_config" "current" {
-}
-
-resource "random_string" "random" {
-  length  = 4
-  special = false
-  upper   = false
 }
 
 #####################################################################
